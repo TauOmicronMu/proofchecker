@@ -41,6 +41,17 @@ def is_neg(exp):
     return exp[0:2] == '-(' and exp.endswith(')')
 
 """
+    Returns whether or not there are any binary operations
+    at level d of the expression
+"""
+def no_binops(exp, d):
+    dps = depths(exp)
+    for i in range(len(dps) - 1):
+        if dps[i] == d and exp[i] in BIN_OPS:
+            return False
+    return True
+
+"""
     Parses a propositional logic expression into a parse tree in the form
     UnOp    ::= -
     BinOp   ::= | | & | : | =
@@ -58,9 +69,10 @@ def parse(exp):
 
     # 3. Split on all operators, starting at the shallowest
     def tree(exp):
-        if(is_neg(exp)) :
-            return ('-', tree(strip_neg(exp)))
         dps = depths(exp)
+        if(is_neg(exp)) : # If the expression is negated
+            if(no_binops(exp, dps[0])): # And there are no BinOps at the same depth as the negation
+                return ('-', tree(strip_neg(exp)))
         max_d = max(dps)
         for i in range(max_d + 1): # For each depth, starting with the lowest...
             for j in range(len(dps) - 1): # For each char in exp
@@ -70,8 +82,6 @@ def parse(exp):
 
     return tree(exp_c)
 
-
-print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
-
 # Make sure that the parser is working as it should
-assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('-', (':', 'A', (':', 'B)&(B', (':', '-C', 'D')))), ('|', '-E', 'F)')))
+# print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
+assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('&', ('-', (':', 'A', 'B')), (':', 'B', (':', '-C', 'D'))), ('|', '-E', 'F)')))
