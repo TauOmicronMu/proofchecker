@@ -71,7 +71,7 @@ def parse(exp):
     return tree(exp_c)
 
 
-print(parse('(-(A -> B) & (B -> (C -> D))) <-> (E | F))'))
+print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
 
 # Make sure that the parser is working as it should
-assert(parse('(-(A -> B) & (B -> (C -> D))) <-> (E | F))') == ('=', ('-', (':', 'A', (':', 'B)&(B', (':', 'C', 'D')))), ('|', 'E', 'F)')))
+assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('-', (':', 'A', (':', 'B)&(B', (':', '-C', 'D')))), ('|', '-E', 'F)')))
