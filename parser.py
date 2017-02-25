@@ -46,3 +46,6 @@ def parse(exp):
         return exp
 
     return tree(exp_c)
+
+# Make sure that the parser is working as it should
+assert(parse(('((A -> B) & (B -> (C -> D))) <-> (E | F)')) == ((('A', ':', 'B'), '&', ('B', ':', ('C', ':', 'D'))), '=', ('E', '|', 'F')))
