@@ -1,5 +1,10 @@
 BIN_OPS = ["|", "&", ":", "="]
 
+# Returns an array containing the depths of each character
+# in a propositional logic expression - based on how many
+# parens the char is inside of. 
+# Eg. depths(A&(B&C)) would return
+#          [111222210]
 def depths(exp): 
     ret = [] 
     ctr = 0
@@ -11,14 +16,18 @@ def depths(exp):
         ret.append(ctr)
     return ret
 
+# Strips the outer parens from an expression iff the expression
+# is in the form (...)  
 def strip_parens(exp):
     if exp.startswith('(') and exp.endswith(')') :
-        print(exp)
-        print(exp[1:-1])
         return exp[1:-1]
     return exp
-    
-
+   
+# Parses a propositional logic expression into a parse tree in the form
+# BinOp   ::= | | & | : | =
+# Literal ::= [A-Z]+[0-9]* | -[A-Z]+[0-9]*
+# Tree    ::= Literal
+# Tree    ::= (Tree, BinOp, Tree) 
 def parse(exp):
     # 1. Remove all spaces from the string
     exp_c = "".join(exp.split())
@@ -36,8 +45,4 @@ def parse(exp):
                     return (tree(strip_parens(exp[0:j])), exp[j], tree(strip_parens(exp[j+1:])))
         return exp
 
-    exp_t = tree(exp_c)
-    print(exp_t)
-
-print("----------------------------------------")
-parse('((A -> B) & (B -> (C -> -D))) <-> (E | -F)')
+    return tree(exp_c)
