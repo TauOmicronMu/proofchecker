@@ -4,8 +4,7 @@ FOLLOWS THE FOLLOWING PSEUDOCODE:
 CONVERT(φ):   // returns a CNF formula equivalent to φ
 
 // Any syntactically valid propositional formula φ must fall into
-// exactly one of the following 7 cases (that is, it is an instanceof
-// one of the 7 subclasses of Formula).
+// exactly one of the following 7 cases 
 
 If φ is a variable, then:
    return φ.
