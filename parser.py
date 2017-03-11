@@ -80,5 +80,6 @@ def parse(exp):
 
 exp = "".join("-((A->B)&C)->D")
 exp2 = "".join("(A -> B) & (B -> C) & (C -> D)") 
-print(parse(exp))
-print(parse(exp2))
+assert(parse(exp) == (':', ('-', ('&', (':', 'A', 'B'), 'C')), 'D'))
+assert(parse(exp2) == ('&', (':', 'A', 'B'), ('&', (':', 'B', 'C'), (':', 'C', 'D'))))
+
