@@ -1,3 +1,5 @@
+import re
+
 '''
 FOLLOWS THE FOLLOWING PSEUDOCODE: 
 
@@ -45,4 +47,24 @@ If φ has the form P xor Q, then:
 
 '''
 def cnf(exp):
+    # If exp is a variable then just return exp.
+    var_r = re.compile('\-?[a-zA-Z0-9]{1}')
+    if(len(var_r.findall(exp)) == 1):
+        return exp  
 
+    # If exp is in the form P & Q, return P1 & P2 & ... & Pm & Q1 & Q2 & ... & Qm
+        
+
+    # If exp is in the form P V Q, return all permutations of the combination of Px and Qx 
+    # i.e. (P1 V Q1) & (P1 V Q2) & ... & (P1 V Qn)
+    #    & (P2 V Q1) & (P2 V Q2) & ... & (P2 V Qn) etc.
+    
+    # If exp is in the form ~(...) :
+    #    - if exp is in the form ~A,   return exp
+    #    - if exp is in the form ~(~A) return cnf(A)
+    #    - if exp is in the form ~(P & Q) return cnf(~P V ~Q) [deMorgan's]
+    #    - if exp is in the form ~(P V Q) return cnf(~P & ~Q) [deMorgan's] 
+    
+    # If exp is in the form P -> Q, return cnf(~P V Q) [equivalence]
+
+    # If exp is in the form P = Q, return cnf((P & Q) V (~P & ~Q))

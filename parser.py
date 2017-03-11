@@ -79,9 +79,10 @@ def parse(exp):
                 if dps[j] == i and exp[j] in BIN_OPS:
                     return (exp[j], tree(strip_parens(exp[0:j])), tree(strip_parens(exp[j+1:])))
         return exp
-
+    
     return tree(exp_c)
 
 # Make sure that the parser is working as it should
-# print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
+# print('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))')
+print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
 assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('&', ('-', (':', 'A', 'B')), (':', 'B', (':', '-C', 'D'))), ('|', '-E', 'F)')))
