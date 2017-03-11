@@ -1,48 +1,81 @@
-'''
-FOLLOWS THE FOLLOWING PSEUDOCODE: 
+import re
 
-CONVERT(φ):   // returns a CNF formula equivalent to φ
+import parser
 
-// Any syntactically valid propositional formula φ must fall into
-// exactly one of the following 7 cases (that is, it is an instanceof
-// one of the 7 subclasses of Formula).
+debug = True
 
-If φ is a variable, then:
-   return φ.
-   // this is a CNF formula consisting of 1 clause that contains 1 literal
-
-If φ has the form P ^ Q, then:
-   CONVERT(P) must have the form P1 ^ P2 ^ ... ^ Pm, and
-   CONVERT(Q) must have the form Q1 ^ Q2 ^ ... ^ Qn,
-   where all the Pi and Qi are disjunctions of literals.
-   So return P1 ^ P2 ^ ... ^ Pm ^ Q1 ^ Q2 ^ ... ^ Qn.
-
-If φ has the form P v Q, then:
-   CONVERT(P) must have the form P1 ^ P2 ^ ... ^ Pm, and
-   CONVERT(Q) must have the form Q1 ^ Q2 ^ ... ^ Qn,
-   where all the Pi and Qi are dijunctions of literals.
-   So we need a CNF formula equivalent to
-      (P1 ^ P2 ^ ... ^ Pm) v (Q1 ^ Q2 ^ ... ^ Qn).
-   So return (P1 v Q1) ^ (P1 v Q2) ^ ... ^ (P1 v Qn)
-           ^ (P2 v Q1) ^ (P2 v Q2) ^ ... ^ (P2 v Qn)
-             ...
-           ^ (Pm v Q1) ^ (Pm v Q2) ^ ... ^ (Pm v Qn)
-
-If φ has the form ~(...), then:
-  If φ has the form ~A for some variable A, then return φ.
-  If φ has the form ~(~P), then return CONVERT(P).           // double negation
-  If φ has the form ~(P ^ Q), then return CONVERT(~P v ~Q).  // de Morgan's Law
-  If φ has the form ~(P v Q), then return CONVERT(~P ^ ~Q).  // de Morgan's Law
-
-If φ has the form P -> Q, then:
-  Return CONVERT(~P v Q).   // equivalent
-
-If φ has the form P <-> Q, then:
-  Return CONVERT((P ^ Q) v (~P ^ ~Q)).
-
-If φ has the form P xor Q, then:
-  Return CONVERT((P ^ ~Q) v (~P ^ Q)).
-
-'''
 def cnf(exp):
+    lit_r = re.compile('\-?[a-zA-Z0-9]{1}')
 
+    # If exp is a variable then just return exp.
+    try:
+        if(len(lit_r.findall(exp)) == 1):
+            return exp
+    except TypeError:
+        pass # It isn't a literal, but we should just carry on
+
+
+    # If exp is in the form P <-> Q, return cnf((P & Q) V (~P & ~Q))
+    if(exp[0] == '='):
+        if(debug):
+            print("exp in form P <-> Q")
+        return cnf(('|', ('&', exp[1], exp[2]), ('&', ('-', exp[1]), ('-', exp[2]))))
+
+
+    # If exp is in the form P -> Q, return cnf(~P V Q) [equivalence]
+    if(exp[0] == ':'):
+        if(debug):
+            print("exp in form P -> Q")
+        return cnf(('|', ('-', exp[1]), exp[2]))
+
+    # If exp is in the form ~(...) :
+    #    - if exp is in the form ~(~P) return cnf(P) [Double Neg]
+    #    - if exp is in the form ~(P & Q) return cnf(~P V ~Q) [deMorgan's]
+    #    - if exp is in the form ~(P V Q) return cnf(~P & ~Q) [deMorgan's] 
+    if(exp[0] == '-'):
+        if(debug):
+            print("exp in form ~(...)")
+        try:
+            if(len(lit_r.findall(exp)) == 1):
+                return exp[1]
+        except TypeError:
+            pass # Not a literal, so carry on...
+        if(exp[1][0] == '-'):
+            if(debug):
+                print("Double Neg!")
+            return cnf(exp[1][1]) # [Double Neg]
+        if(exp[1][0] == '&'):
+            if(debug):
+                print("Nand!")
+            return cnf(('|', ('-', exp[1][1]), ('-', exp[1][2])))
+        if(exp[1][0] == '|'): 
+            if(debug):
+                print("Nor!")
+            return cnf(('&', ('-', exp[1][1]), ('-', exp[1][2])))
+
+    # If exp is in the form P & (Q V R), return (P & Q) V (P & R) [distributivity]
+    if(exp[0] == '&'):
+        if(debug):
+            print("exp in form P & Q")
+        if(exp[1][0] == '&'): # (P V Q) & R
+            return cnf(('|', ('&', exp[2], exp[1][1]), ('&', exp[2], exp[1][2])))
+        if(exp[2][0] == '&'): # P & (Q V R)
+            return cnf(('|', ('&', exp[1], exp[2][1]), ('&', exp[1], exp[2][2])))
+        print(exp)
+        print(exp[1])
+        print(exp[1][1])
+        return ('&', cnf(exp[1]), cnf(exp[2]))
+
+
+    # If exp is in the form P V (Q & R), return (P V Q) & (P V R) [distributivity] 
+    if(exp[0] == '|'):
+        if(debug):
+            print("exp in form P V Q")
+        if(exp[1][0] == '|'): # (P & Q) V R
+            return cnf(('&', ('|', exp[2], exp[1][1]), ('|', exp[2], exp[1][2])))
+        if(exp[2][0] == '|'): # P V (Q & R)
+            return cnf(('&', ('|', exp[1], exp[2][1]), ('|', exp[1], exp[2][2])))
+        return exp
+
+
+print(cnf(parser.parse("((A -> B) & (C -> D)) & (E -> F)")))
