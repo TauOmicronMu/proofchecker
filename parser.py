@@ -1,6 +1,8 @@
 UN_OPS = ["-"]
 BIN_OPS = ["|", "&", ":", "="]
 
+OPS = ["=", ":", "|", "&", "-"] # Used for precedence
+
 """ 
     Returns an array containing the depths of each character
     in a propositional logic expression - based on how many
@@ -8,93 +10,69 @@ BIN_OPS = ["|", "&", ":", "="]
     Eg. depths(A&(B&C)) would return
              [111222210]
 """
-def depths(exp): 
-    ret = [] 
+def depths(exp):
+    ret = []
     ctr = 0
     for c in exp:
-        if c == '(': 
+        if c == '(':
             ctr += 1
         elif c == ')':
             ctr -= 1
         ret.append(ctr)
     return ret
 
-"""
-    Strips the outer parens from an expression iff the expression
-    is in the form (...) AND the outermost parens are at the same
-    depth. Also, strip parens iff the expression is in the form (A 
-    or A) 
-"""
+# TODO: Change this to use sect...
 def strip_parens(exp):
     dps = depths(exp)
-    if exp.startswith('(') and exp.endswith(')') and dps[0] == dps[-1]:
+    print(dps)
+    print(exp.startswith('('))
+    print(exp.endswith(')'))
+    print(dps[0])
+    print(dps[-1])
+    if exp.startswith('(') and exp.endswith(')') and dps[0] == dps[-1] + 1:
         return exp[1:-1]
-    if exp[0] == '(' and len(exp) == 2:
-        return exp[1]
-    if len(exp) == 2 and exp[1] == ')':
-        return exp[0]
     return exp
 
-# TODO: Make sure the ( lies at the same depth as the )
-def strip_neg(exp):
-    dps = depths(exp)
-    if exp[0:2] == '-(' and exp.endswith(')') and dps[1] == dps[-1]: 
-        return exp[2:-1]
-    return exp   
+def prec(dps, exp):
+    if(len(dps) == 0):
+        return []
+    for i in range(max(dps) + 1): # For each depth, starting with the lowest
+        ret = []
+        found = False # This will be set to true if we find something to split on
+        for j in range(len(dps)): # For each element of exp/dps
+            if(dps[j] == i and exp[j] in OPS): # If we have an OP at the current depth
+                found = True 
+                ret.append(OPS.index(exp[j]))
+            else:
+                ret.append(0)
+        if(found):
+            return ret
 
-"""
-    Returns whether or not an expression is in the form -(...)
-    (i.e. the expression is negated)
-"""
-def is_neg(exp):
-    return exp[0:2] == '-(' and exp.endswith(')')
+def sect(dps, exp, n):
+    ret = [] 
+    for i in range(n+1, len(dps)):
+        ret.append(exp[i])
+        if dps[i] < dps[n+1]:
+            return ret
 
-"""
-    Returns whether or not there are any binary operations
-    at level d of the expression
-"""
-def no_binops(exp, d):
-    dps = depths(exp)
-    for i in range(len(dps) - 1):
-        if dps[i] == d and exp[i] in BIN_OPS:
-            return False
-    return True
-
-"""
-    Parses a propositional logic expression into a parse tree in the form
-    UnOp    ::= -
-    BinOp   ::= | | & | : | =
-    Literal ::= [A-Z]+[0-9]* | -[A-Z]+[0-9]*
-    Tree    ::= Literal
-    Tree    ::= (UnOp, Tree)
-    Tree    ::= (BinOp, Tree, Tree) 
-"""
 def parse(exp):
-    # 1. Remove all spaces from the string
-    exp_c = "".join(exp.split())
-    
-    # 2. Replace -> with : and <-> with =
-    exp_c = exp_c.replace('<->', '=').replace('->', ':')
-
-    # 3. Split on all operators, starting at the shallowest
+    # 1. Remove all spaces from the string and replace -> with : and <-> with =
+    exp_c = "".join(exp.split()).replace('<->', '=').replace('->', ':')
+ 
     def tree(exp):
+        print(exp)
         dps = depths(exp)
-        if(is_neg(exp)) : # If the expression is negated
-            if(no_binops(exp, dps[0])): # And there are no BinOps at the same depth as the negation
-                return ('-', tree(strip_neg(exp)))
-        max_d = max(dps)
-        for i in range(max_d + 1): # For each depth, starting with the lowest...
-            for j in range(len(dps) - 1): # For each char in exp
-                if dps[j] == i and exp[j] in BIN_OPS:
-                    return (exp[j], tree(strip_parens(exp[0:j])), tree(strip_parens(exp[j+1:])))
-        return exp
+        pre = prec(dps, exp)
+        for i in range(4, 0, -1): # For each BinOp, starting with the highest precedence
+            if i in pre: # Parse, with them at the root of the tree
+                n = pre.index(i)
+                return (OPS[i-1], tree(strip_parens(exp[:n])), tree(strip_parens(exp[n+1:])))
+        if 5 in pre:
+            n = pre.index(5)
+            return ('-', tree(sect(dps, exp, n)))
 
     return tree(exp_c)
 
-# Make sure that the parser is working as it should
-print(parse('(A -> B) & (B | C) & (C -> D)'))
-assert(parse('(A -> B) & (B | C) & (C -> D)') == ('&', (':', 'A', 'B'), ('&', ('|', 'B', 'C'), (':', 'C', 'D'))))
-print("Test 1 Passed")
-print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
-assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('&', ('-', (':', 'A', 'B')), (':', 'B', (':', '-C', 'D'))), ('|', '-E', 'F)')))
-print("Test 2 Passed")
+exp = "".join("-((A->B)&C)->D".split()).replace('<->','=').replace('->',':')
+# print(prec(depths(exp), exp))
+# print(parse(exp))
