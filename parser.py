@@ -21,15 +21,24 @@ def depths(exp):
 
 """
     Strips the outer parens from an expression iff the expression
-    is in the form (...)  
+    is in the form (...) AND the outermost parens are at the same
+    depth. Also, strip parens iff the expression is in the form (A 
+    or A) 
 """
 def strip_parens(exp):
-    if exp.startswith('(') and exp.endswith(')') :
+    dps = depths(exp)
+    if exp.startswith('(') and exp.endswith(')') and dps[0] == dps[-1]:
         return exp[1:-1]
+    if exp[0] == '(' and len(exp) == 2:
+        return exp[1]
+    if len(exp) == 2 and exp[1] == ')':
+        return exp[0]
     return exp
 
+# TODO: Make sure the ( lies at the same depth as the )
 def strip_neg(exp):
-    if exp[0:2] == '-(' and exp.endswith(')') : 
+    dps = depths(exp)
+    if exp[0:2] == '-(' and exp.endswith(')') and dps[1] == dps[-1]: 
         return exp[2:-1]
     return exp   
 
@@ -83,5 +92,9 @@ def parse(exp):
     return tree(exp_c)
 
 # Make sure that the parser is working as it should
-# print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
+print(parse('(A -> B) & (B | C) & (C -> D)'))
+assert(parse('(A -> B) & (B | C) & (C -> D)') == ('&', (':', 'A', 'B'), ('&', ('|', 'B', 'C'), (':', 'C', 'D'))))
+print("Test 1 Passed")
+print(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))'))
 assert(parse('(-(A -> B) & (B -> (-C -> D))) <-> (-E | F))') == ('=', ('&', ('-', (':', 'A', 'B')), (':', 'B', (':', '-C', 'D'))), ('|', '-E', 'F)')))
+print("Test 2 Passed")
