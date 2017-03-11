@@ -21,15 +21,9 @@ def depths(exp):
         ret.append(ctr)
     return ret
 
-# TODO: Change this to use sect...
 def strip_parens(exp):
     dps = depths(exp)
-    print(dps)
-    print(exp.startswith('('))
-    print(exp.endswith(')'))
-    print(dps[0])
-    print(dps[-1])
-    if exp.startswith('(') and exp.endswith(')') and dps[0] == dps[-1] + 1:
+    if sect(dps, exp, 0) == exp:
         return exp[1:-1]
     return exp
 
@@ -42,37 +36,49 @@ def prec(dps, exp):
         for j in range(len(dps)): # For each element of exp/dps
             if(dps[j] == i and exp[j] in OPS): # If we have an OP at the current depth
                 found = True 
-                ret.append(OPS.index(exp[j]))
+                ret.append(OPS.index(exp[j])+1)
             else:
                 ret.append(0)
         if(found):
             return ret
 
 def sect(dps, exp, n):
-    ret = [] 
-    for i in range(n+1, len(dps)):
-        ret.append(exp[i])
-        if dps[i] < dps[n+1]:
+    if(len(exp) == 1):
+        return exp
+    ret = ""
+    for i in range(n, len(dps)):
+        ret += exp[i]
+        if dps[i] < dps[n]:
             return ret
+    return exp[n]
 
 def parse(exp):
     # 1. Remove all spaces from the string and replace -> with : and <-> with =
     exp_c = "".join(exp.split()).replace('<->', '=').replace('->', ':')
  
     def tree(exp):
-        print(exp)
+        exp = strip_parens(exp)
         dps = depths(exp)
         pre = prec(dps, exp)
+        if(pre == None):
+            return exp
         for i in range(4, 0, -1): # For each BinOp, starting with the highest precedence
             if i in pre: # Parse, with them at the root of the tree
                 n = pre.index(i)
-                return (OPS[i-1], tree(strip_parens(exp[:n])), tree(strip_parens(exp[n+1:])))
+                left = exp[:n]
+                right = exp[n+1:]
+                if(len(left) != 1):
+                    left = tree(left)
+                if(len(right) != 1):
+                    right = tree(right)
+                return (OPS[i-1], left, right)
         if 5 in pre:
             n = pre.index(5)
-            return ('-', tree(sect(dps, exp, n)))
+            return ('-', tree(sect(dps, exp, n+1)))
 
     return tree(exp_c)
 
-exp = "".join("-((A->B)&C)->D".split()).replace('<->','=').replace('->',':')
-# print(prec(depths(exp), exp))
-# print(parse(exp))
+exp = "".join("-((A->B)&C)->D")
+exp2 = "".join("(A -> B) & (B -> C) & (C -> D)") 
+print(parse(exp))
+print(parse(exp2))
