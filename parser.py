@@ -21,12 +21,24 @@ def depths(exp):
         ret.append(ctr)
     return ret
 
+"""
+    Strips the outer parens from an expression iff it is in
+    the form (...) and the two parentheses form the outermost
+    parts of the same section (sect).
+"""
 def strip_parens(exp):
     dps = depths(exp)
     if sect(dps, exp, 0) == exp:
         return exp[1:-1]
     return exp
 
+"""
+    Returns the precedences of all operators at the uppermost
+    depth (that contains ops), and 0 otherwise. Eg.
+                      A:B=C&D|E
+                     [020104030] 
+    See: 
+"""
 def prec(dps, exp):
     if(len(dps) == 0):
         return []
@@ -52,10 +64,20 @@ def sect(dps, exp, n):
             return ret
     return exp[n]
 
+"""
+    Parses a propositional logic expression into a parse tree in the form
+    UnOp    ::= -
+    BinOp   ::= | | & | : | =
+    Literal ::= [A-Z]+[0-9]*
+    Tree    ::= Literal
+    Tree    ::= (UnOp, Tree)
+    Tree    ::= (BinOp, Tree, Tree) 
+"""
 def parse(exp):
     # 1. Remove all spaces from the string and replace -> with : and <-> with =
     exp_c = "".join(exp.split()).replace('<->', '=').replace('->', ':')
  
+    # 2. Recursively parse the structure as a tree.
     def tree(exp):
         exp = strip_parens(exp)
         dps = depths(exp)
@@ -75,9 +97,10 @@ def parse(exp):
         if 5 in pre:
             n = pre.index(5)
             return ('-', tree(sect(dps, exp, n+1)))
-
     return tree(exp_c)
 
+
+# Test that the parser is doing it's job...
 exp = "".join("-((A->B)&C)->D")
 exp2 = "".join("(A -> B) & (B -> C) & (C -> D)") 
 assert(parse(exp) == (':', ('-', ('&', (':', 'A', 'B'), 'C')), 'D'))
