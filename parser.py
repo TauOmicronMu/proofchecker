@@ -37,7 +37,8 @@ def strip_parens(exp):
     depth (that contains ops), and 0 otherwise. Eg.
                       A:B=C&D|E
                      [020104030] 
-    See: 
+    See: https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence
+         for more details
 """
 def prec(dps, exp):
     if(len(dps) == 0):
@@ -54,6 +55,10 @@ def prec(dps, exp):
         if(found):
             return ret
 
+"""
+    Returns the largest contiguous sequence (within parens) from the given
+    position, n, in the expression, exp.
+"""
 def sect(dps, exp, n):
     if(len(exp) == 1):
         return exp
@@ -96,12 +101,16 @@ def parse(exp):
                 return (OPS[i-1], left, right)
         if 5 in pre:
             n = pre.index(5)
+            if(len(exp) == 2):
+                return ('-', exp[1])
             return ('-', tree(sect(dps, exp, n+1)))
     return tree(exp_c)
 
 
 # Test that the parser is doing it's job...
-exp = "".join("-((A->B)&C)->D")
-exp2 = "".join("(A -> B) & (B -> C) & (C -> D)") 
-assert(parse(exp) == (':', ('-', ('&', (':', 'A', 'B'), 'C')), 'D'))
-assert(parse(exp2) == ('&', (':', 'A', 'B'), ('&', (':', 'B', 'C'), (':', 'C', 'D'))))
+neg_lit = "".join("-A") # Test negation of literals
+neg_nest_paren = "".join("-((A->B)&C)->D") # Test that negation is working properly over nested parens
+multi_conj = "".join("(A -> B) & (B -> C) & (C -> D)") # Test multiple conjunctions at the same depth 
+assert(parse(neg_lit) == ('-', 'A'))
+assert(parse(neg_nest_paren) == (':', ('-', ('&', (':', 'A', 'B'), 'C')), 'D'))
+assert(parse(multi_conj) == ('&', (':', 'A', 'B'), ('&', (':', 'B', 'C'), (':', 'C', 'D'))))
