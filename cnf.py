@@ -37,6 +37,7 @@ def rneg(tree):
     return (root, rneg(tree[1]), rneg(tree[2])) 
 
 def dist(tree):
+    print(tree)
     if len(tree) == 1: # Literal
         return tree
     root = tree[0]
@@ -61,7 +62,7 @@ def dist(tree):
             return ('&', ('|', left, right[1]), ('|', left, right[2]))
         # (P & Q) V R => (P V R) & (Q V R)
         if leftop == '&':
-            return ('|', ('&', left[1], right), ('&', left[2], right))
+            return ('&', ('|', left[1], right), ('|', left[2], right))
     if root == '-':
         return (root, dist(tree[1]))
     return (root, dist(tree[1]), dist(tree[2]))
