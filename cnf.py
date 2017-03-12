@@ -19,7 +19,6 @@ def rimp(tree):
     return (tree[0], rimp(tree[1]), rimp(tree[2])) # Anything else
 
 def rneg(tree):
-    print(tree)
     if(len(tree) == 1): # Literal
         return tree
     root = tree[0]
@@ -33,6 +32,7 @@ def rneg(tree):
             return rneg(left)
         right = tree[1][2]
         if op == '&' or op == '|': # DeMorgan's
+            op = '|' if op == '&' else '&' # Swap the op over
             return (op, rneg(('-', left)), rneg(('-', right)))
     return (root, rneg(tree[1]), rneg(tree[2])) 
 
