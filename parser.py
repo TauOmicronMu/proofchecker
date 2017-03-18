@@ -106,6 +106,26 @@ def parse(exp):
             return ('-', tree(sect(dps, exp, n+1)))
     return tree(exp_c)
 
+"""
+    Convert a given tree to a string using post-order
+    traversal.
+"""
+def tostring(tree):
+    if len(tree) == 1:
+        return tree
+    if tree[0] == '-':
+        return '-' + "(" + tostring(tree[1]) + ")"
+    return "(" + tostring(tree[1]) + tree[0] + tostring(tree[2]) + ")"   
+
+"""
+    Same as tostring but without parens 
+"""
+def noptostring(tree):
+    if len(tree) == 1:
+        return tree
+    if tree[0] == '-':
+        return '-' + noptostring(tree[1])
+    return noptostring(tree[1]) + tree[0] + noptostring(tree[2])
 
 # Test that the parser is doing it's job...
 neg_lit = "".join("-A") # Test negation of literals
