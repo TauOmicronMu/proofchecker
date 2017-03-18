@@ -117,6 +117,16 @@ def tostring(tree):
         return '-' + "(" + tostring(tree[1]) + ")"
     return "(" + tostring(tree[1]) + tree[0] + tostring(tree[2]) + ")"   
 
+"""
+    Same as tostring but without parens 
+"""
+def noptostring(tree):
+    if len(tree) == 1:
+        return tree
+    if tree[0] == '-':
+        return '-' + noptostring(tree[1])
+    return noptostring(tree[1]) + tree[0] + noptostring(tree[2])
+
 # Test that the parser is doing it's job...
 neg_lit = "".join("-A") # Test negation of literals
 neg_nest_paren = "".join("-((A->B)&C)->D") # Test that negation is working properly over nested parens

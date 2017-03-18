@@ -63,23 +63,6 @@ def dist(tree):
             print("[dist] Literal : " + parser.tostring(tree))
         return tree
     root = tree[0]
-    if root == '&':
-        left = tree[1]
-        right = tree[2]
-        leftop = left[0]
-        rightop = right[0]
-        # P & (Q V R) => (P & Q) V (P & R)
-        if rightop == '|': 
-            ret_val = ('|', ('&', left, right[1]), ('&', left, right[2]))
-            if debug:
-                print("[dist] &-Distributivity on right : " + parser.tostring(tree) + " => " + parser.tostring(ret_val))
-            return ret_val
-        # (P V R) & Q => (P & Q) V (Q & R)
-        if leftop == '|':
-            ret_val = ('|', ('&', left[1], right), ('&', left[2], right))
-            if debug:
-                print("[dist] &-Distributivity on left : " + parser.tostring(tree) + " => " + parser.tostring(ret_val))
-            return ret_val
     if root == '|':
         left = tree[1]
         right = tree[2]
@@ -122,14 +105,34 @@ def cnf_pretty(tree):
     set of sets (i.e. {{...}, {...}, {...}, {...}}) where each 
     inner set represents a clause (i.e. a disjunction of 
     literals.
+
+    Converts to a non-'paren-ned' version and splits on & then
+    | to give lists to convert to sets.
 '''
 def clause_nf(tree):
-    tree = cnf_tree(tree)
-    return clause_nf_aux(tree)
+    return rationalise(set([frozenset(x) for x in [l.split('|') for l in parser.noptostring(cnf_tree(tree)).split('&')]]))
 
-def clause_nf_aux(tree, acc):   
-    pass
-        
+'''
+    Takes a set in CNF (see clause_nf function docstring), and removes any 
+    sets with rationalisale elements - eg. {A, -A} => T
+'''
+def rationalise(s):
+    ret_set = set([])
+    for c in s:
+        for l in c:
+            if(not neg(l) in c):
+                ret_set.add(c)
+    return ret_set
+    
+'''
+    Returns the negated form of a literal:
+        L => -L
+       -L => L
+        _ => _
+'''       
+def neg(l):
+    return l if len(l) > 1 else "-" + l
+
 # Tests
 # rimp tests
 # rneg tests
