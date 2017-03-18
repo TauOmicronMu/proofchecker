@@ -114,8 +114,8 @@ def tostring(tree):
     if len(tree) == 1:
         return tree
     if tree[0] == '-':
-        return '-' + tostring(tree[1])
-    return tostring(tree[1]) + tree[0] + tostring(tree[2])    
+        return '-' + "(" + tostring(tree[1]) + ")"
+    return "(" + tostring(tree[1]) + tree[0] + tostring(tree[2]) + ")"   
 
 # Test that the parser is doing it's job...
 neg_lit = "".join("-A") # Test negation of literals
