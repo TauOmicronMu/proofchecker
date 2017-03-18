@@ -22,6 +22,7 @@ def rimp(tree):
         ret_val = ('|', ('&', rimp(tree[1]), rimp(tree[2])), 
                      ('&', ('-', rimp(tree[1])), ('-', rimp(tree[2]))))
         print("[rimp] Removing Equivalence: " + parser.tostring(tree) + " => " + parser.tostring(ret_val))
+        return ret_val
     if debug:
         print("[rimp] No cases matched.")
     if tree[0] == '-':        
@@ -75,7 +76,7 @@ def dist(tree):
             return ret_val
         # (P V R) & Q => (P & Q) V (Q & R)
         if leftop == '|':
-            ret_val ('|', ('&', left[1], right), ('&', left[2], right))
+            ret_val = ('|', ('&', left[1], right), ('&', left[2], right))
             if debug:
                 print("[dist] &-Distributivity on left : " + parser.tostring(tree) + " => " + parser.tostring(ret_val))
             return ret_val
@@ -115,6 +116,19 @@ def cnf_pretty(tree):
         ret += ")"
         ret += " & "
     return ret[:-3] # :-3 so &s are interspersed properly...
+
+'''
+    Takes a PL tree and converts it to clause NF. Returns a
+    set of sets (i.e. {{...}, {...}, {...}, {...}}) where each 
+    inner set represents a clause (i.e. a disjunction of 
+    literals.
+'''
+def clause_nf(tree):
+    tree = cnf_tree(tree)
+    return clause_nf_aux(tree)
+
+def clause_nf_aux(tree, acc):   
+    pass
         
 # Tests
 # rimp tests
