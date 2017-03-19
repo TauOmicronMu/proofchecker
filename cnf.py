@@ -2,14 +2,14 @@ import parser
 
 debug = True
 
+def rimp(tree):
 '''
     Replaces all implications and equivalences from the given
     tree, replacing them as follows:
         A -> B  => ¬A V B
         A <-> B => (A & B) V (¬A & ¬B) 
 '''
-def rimp(tree):
-    if(len(tree) == 1): # Literal
+   if(len(tree) == 1): # Literal
         if debug:
             print("[rimp] Literal: " + parser.tostring(tree))
         return tree 
@@ -29,11 +29,11 @@ def rimp(tree):
         return (tree[0], rimp(tree[1])) # Negation
     return (tree[0], rimp(tree[1]), rimp(tree[2])) # Anything else
 
+def rneg(tree):
 '''
     Pushes all negations to the leaves of the tree - i.e. the 
     only negations left are on the literals (eg. -A).
 '''
-def rneg(tree):
     if(len(tree) == 1): # Literal
         if debug:
             print("[rneg] Literal: " + parser.tostring(tree))
@@ -61,10 +61,10 @@ def rneg(tree):
         print("[rneg] " + parser.tostring(tree) + " : No cases matched.")
     return (root, rneg(tree[1]), rneg(tree[2])) 
 
+def dist(tree):
 '''
     Distributes over Vs until we are in CNF.
 '''
-def dist(tree):
     if len(tree) == 1: # Literal
         if debug:
             print("[dist] Literal : " + parser.tostring(tree))
@@ -93,17 +93,17 @@ def dist(tree):
         return (root, dist(tree[1]))
     return (root, dist(tree[1]), dist(tree[2]))
 
+def cnf_tree(tree):
 '''
     Returns the Conjunctive Normal Form tree of the given 
     initial tree. (combination of dist, rneg and rimp).
 '''
-def cnf_tree(tree):
     return dist(rneg(rimp(tree)))
 
-'''
-   Basically just pretty-prints the Clause NF
-'''
 def cnf_pretty(tree):
+'''
+   Pretty-prints the Clause NF of the given tree
+'''
     cnf_t = cnf_tree(tree)
     cs = parser.tostring(cnf_t).split("&") 
     ret = ""
@@ -114,6 +114,7 @@ def cnf_pretty(tree):
         ret += " & "
     return ret[:-3] # :-3 so &s are interspersed properly...
 
+def clause_nf(tree):
 '''
     Takes a PL tree and converts it to clause NF. Returns a
     set of sets (i.e. {{...}, {...}, {...}, {...}}) where each 
@@ -123,14 +124,14 @@ def cnf_pretty(tree):
     Converts to a non-'paren-ned' version and splits on & then
     | to give lists to convert to sets.
 '''
-def clause_nf(tree):
+
     return rationalise(set([frozenset(x) for x in [l.split('|') for l in parser.noptostring(cnf_tree(tree)).split('&')]]))
 
+def rationalise(s):
 '''
     Takes a set in CNF (see clause_nf function docstring), and removes any 
     sets with rationalisale elements - eg. {A, -A} => T
 '''
-def rationalise(s):
     ret_set = set([])
     for c in s:
         for l in c:
@@ -138,13 +139,13 @@ def rationalise(s):
                 ret_set.add(c)
     return ret_set
     
+def neg(l):
 '''
     Returns the negated form of a literal:
         L => -L
        -L => L
         _ => _
-'''       
-def neg(l):
+'''  
     return (l[1] if len(l) > 1 else "-" + l)
 
 # Tests

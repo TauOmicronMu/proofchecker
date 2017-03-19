@@ -3,6 +3,7 @@ BIN_OPS = ["|", "&", ":", "="]
 
 OPS = ["=", ":", "|", "&", "-"] # Used for precedence
 
+def depths(exp):
 """ 
     Returns an array containing the depths of each character
     in a propositional logic expression - based on how many
@@ -10,7 +11,6 @@ OPS = ["=", ":", "|", "&", "-"] # Used for precedence
     Eg. depths(A&(B&C)) would return
              [111222210]
 """
-def depths(exp):
     ret = []
     ctr = 0
     for c in exp:
@@ -21,17 +21,18 @@ def depths(exp):
         ret.append(ctr)
     return ret
 
+def strip_parens(exp):
 """
     Strips the outer parens from an expression iff it is in
     the form (...) and the two parentheses form the outermost
     parts of the same section (sect).
 """
-def strip_parens(exp):
     dps = depths(exp)
     if sect(dps, exp, 0) == exp:
         return exp[1:-1]
     return exp
 
+def prec(dps, exp):
 """
     Returns the precedences of all operators at the uppermost
     depth (that contains ops), and 0 otherwise. Eg.
@@ -40,7 +41,6 @@ def strip_parens(exp):
     See: https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence
          for more details
 """
-def prec(dps, exp):
     if(len(dps) == 0):
         return []
     for i in range(max(dps) + 1): # For each depth, starting with the lowest
@@ -55,11 +55,11 @@ def prec(dps, exp):
         if(found):
             return ret
 
+def sect(dps, exp, n):
 """
     Returns the largest contiguous sequence (within parens) from the given
     position, n, in the expression, exp.
 """
-def sect(dps, exp, n):
     if(len(exp) == 1):
         return exp
     ret = ""
@@ -69,6 +69,7 @@ def sect(dps, exp, n):
             return ret
     return exp[n]
 
+def parse(exp):
 """
     Parses a propositional logic expression into a parse tree in the form
     UnOp    ::= -
@@ -78,7 +79,6 @@ def sect(dps, exp, n):
     Tree    ::= (UnOp, Tree)
     Tree    ::= (BinOp, Tree, Tree) 
 """
-def parse(exp):
     # 1. Remove all spaces from the string and replace -> with : and <-> with =
     exp_c = "".join(exp.split()).replace('<->', '=').replace('->', ':')
  
@@ -106,21 +106,21 @@ def parse(exp):
             return ('-', tree(sect(dps, exp, n+1)))
     return tree(exp_c)
 
+def tostring(tree):
 """
     Convert a given tree to a string using post-order
     traversal.
 """
-def tostring(tree):
     if len(tree) == 1:
         return tree
     if tree[0] == '-':
         return '-' + "(" + tostring(tree[1]) + ")"
     return "(" + tostring(tree[1]) + tree[0] + tostring(tree[2]) + ")"   
 
+def noptostring(tree):
 """
     Same as tostring but without parens 
 """
-def noptostring(tree):
     if len(tree) == 1:
         return tree
     if tree[0] == '-':
