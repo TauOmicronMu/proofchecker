@@ -3,9 +3,14 @@ import cnf
 
 debug = True
 
-def res(s):
-    P = cnf.clause_nf(parser.parse(s))
-    return res_a(P)
+def res(e):
+    '''
+        Returns SAT or UNSAT based on the result of
+        propositional resolution on the given logical
+        expression, e.
+    '''
+    return res_a(cnf.clause_nf(parser.parse(e)))
+    
      
 def choose(s):
     '''
@@ -58,6 +63,11 @@ def sreplace(s, c, nc):
     return set([x if x != c else nc for x in s])    
 
 def res_a(s):
+    '''
+        Auxiliary function for res(), recursively applies 
+        resolution rules to the set until SAT or UNSAT is 
+        found.
+    '''
     P = s # Keep track of the original set 
 
     # Choose 2 clauses, C1, C2 that have not yet
