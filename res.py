@@ -10,13 +10,18 @@ def res(s):
     L (with a complimentary literal) 
 '''
 def choose(s):
+    ls = literals(s) 
+    
+
+def literals(s):
     acc = set([])
     for c in s:
         for l in c:
             print(l)
             print(cnf.neg(l))
             acc.add(l if len(l) == 1 else cnf.neg(l))
-    return acc       
+    return acc
+
 
 def res_a(s):
     # Choose 2 clauses, C1, C2 that have not yet

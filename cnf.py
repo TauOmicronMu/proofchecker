@@ -29,6 +29,10 @@ def rimp(tree):
         return (tree[0], rimp(tree[1])) # Negation
     return (tree[0], rimp(tree[1]), rimp(tree[2])) # Anything else
 
+'''
+    Pushes all negations to the leaves of the tree - i.e. the 
+    only negations left are on the literals (eg. -A).
+'''
 def rneg(tree):
     if(len(tree) == 1): # Literal
         if debug:
@@ -57,6 +61,9 @@ def rneg(tree):
         print("[rneg] " + parser.tostring(tree) + " : No cases matched.")
     return (root, rneg(tree[1]), rneg(tree[2])) 
 
+'''
+    Distributes over Vs until we are in CNF.
+'''
 def dist(tree):
     if len(tree) == 1: # Literal
         if debug:
@@ -86,9 +93,16 @@ def dist(tree):
         return (root, dist(tree[1]))
     return (root, dist(tree[1]), dist(tree[2]))
 
+'''
+    Returns the Conjunctive Normal Form tree of the given 
+    initial tree. (combination of dist, rneg and rimp).
+'''
 def cnf_tree(tree):
     return dist(rneg(rimp(tree)))
 
+'''
+   Basically just pretty-prints the Clause NF
+'''
 def cnf_pretty(tree):
     cnf_t = cnf_tree(tree)
     cs = parser.tostring(cnf_t).split("&") 
