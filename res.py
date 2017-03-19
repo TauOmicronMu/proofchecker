@@ -5,16 +5,24 @@ def res(s):
     P = cnf.clause_nf(parser.parse(s))
 
 def choose(s):
-'''
-    Given a set of clauses, S, choose two clauses
-    such that one contains ¬L and the other contains
-    L (with a complimentary literal) 
-'''
+    '''
+        Given a set of clauses, S, choose two clauses
+        such that one contains ¬L and the other contains
+        L (with a complimentary literal) 
+    '''
     ls = literals(s) 
+    c_l = set()
+    c_nl = set()
     # For each literal, see if there are two clauses
     # that contain complimentary forms of it.
     for l in ls:
-        i    
+        for c in s:
+            if l in c:
+                c_l.add(c)
+            elif neg(l) in c:
+                c_nl.add(c)
+    print(c_l)
+    print(c_nl)
 
 def literals(s):
     acc = set([])

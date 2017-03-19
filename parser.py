@@ -4,13 +4,13 @@ BIN_OPS = ["|", "&", ":", "="]
 OPS = ["=", ":", "|", "&", "-"] # Used for precedence
 
 def depths(exp):
-""" 
-    Returns an array containing the depths of each character
-    in a propositional logic expression - based on how many
-    parens the char is inside of. 
-    Eg. depths(A&(B&C)) would return
-             [111222210]
-"""
+    """ 
+        Returns an array containing the depths of each character
+        in a propositional logic expression - based on how many
+        parens the char is inside of. 
+        Eg. depths(A&(B&C)) would return
+                 [111222210]
+    """
     ret = []
     ctr = 0
     for c in exp:
@@ -22,25 +22,25 @@ def depths(exp):
     return ret
 
 def strip_parens(exp):
-"""
-    Strips the outer parens from an expression iff it is in
-    the form (...) and the two parentheses form the outermost
-    parts of the same section (sect).
-"""
+    """
+        Strips the outer parens from an expression iff it is in
+        the form (...) and the two parentheses form the outermost
+        parts of the same section (sect).
+    """
     dps = depths(exp)
     if sect(dps, exp, 0) == exp:
         return exp[1:-1]
     return exp
 
 def prec(dps, exp):
-"""
-    Returns the precedences of all operators at the uppermost
-    depth (that contains ops), and 0 otherwise. Eg.
-                      A:B=C&D|E
-                     [020104030] 
-    See: https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence
-         for more details
-"""
+    """
+        Returns the precedences of all operators at the uppermost
+        depth (that contains ops), and 0 otherwise. Eg.
+                          A:B=C&D|E
+                         [020104030] 
+        See: https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence
+             for more details
+    """
     if(len(dps) == 0):
         return []
     for i in range(max(dps) + 1): # For each depth, starting with the lowest
@@ -56,10 +56,10 @@ def prec(dps, exp):
             return ret
 
 def sect(dps, exp, n):
-"""
-    Returns the largest contiguous sequence (within parens) from the given
-    position, n, in the expression, exp.
-"""
+    """
+        Returns the largest contiguous sequence (within parens) from the given
+        position, n, in the expression, exp.
+    """
     if(len(exp) == 1):
         return exp
     ret = ""
@@ -70,15 +70,15 @@ def sect(dps, exp, n):
     return exp[n]
 
 def parse(exp):
-"""
-    Parses a propositional logic expression into a parse tree in the form
-    UnOp    ::= -
-    BinOp   ::= | | & | : | =
-    Literal ::= [A-Z]+[0-9]*
-    Tree    ::= Literal
-    Tree    ::= (UnOp, Tree)
-    Tree    ::= (BinOp, Tree, Tree) 
-"""
+    """
+        Parses a propositional logic expression into a parse tree in the form
+        UnOp    ::= -
+        BinOp   ::= | | & | : | =
+        Literal ::= [A-Z]+[0-9]*
+        Tree    ::= Literal
+        Tree    ::= (UnOp, Tree)
+        Tree    ::= (BinOp, Tree, Tree) 
+    """
     # 1. Remove all spaces from the string and replace -> with : and <-> with =
     exp_c = "".join(exp.split()).replace('<->', '=').replace('->', ':')
  
@@ -107,10 +107,10 @@ def parse(exp):
     return tree(exp_c)
 
 def tostring(tree):
-"""
-    Convert a given tree to a string using post-order
-    traversal.
-"""
+    """
+        Convert a given tree to a string using post-order
+        traversal.
+    """
     if len(tree) == 1:
         return tree
     if tree[0] == '-':
@@ -118,9 +118,9 @@ def tostring(tree):
     return "(" + tostring(tree[1]) + tree[0] + tostring(tree[2]) + ")"   
 
 def noptostring(tree):
-"""
-    Same as tostring but without parens 
-"""
+    """
+        Same as tostring but without parens 
+    """
     if len(tree) == 1:
         return tree
     if tree[0] == '-':
