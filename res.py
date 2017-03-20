@@ -37,6 +37,8 @@ def choose(s):
             if debug:
                 print("[choose] Pair found : " + str(ret_val))
             return ret_val
+    if debug:
+        print("[choose] No pair found...")
     return None # No pairs found...  
 
 def literals(s):
@@ -50,7 +52,8 @@ def cpywo(s, l):
     '''
         Copies all elements of a frozenset s in to a new
         frozenset, except the element l (and returns the
-        new frozenset).
+        new frozenset). For sets, use sremove instead of
+        cpywo.
     '''
     return frozenset([x for x in s if x != l])
 
@@ -61,6 +64,15 @@ def sreplace(s, c, nc):
         nc (and the new set is returned).
     '''
     return set([x if x != c else nc for x in s])    
+
+def sremove(s, c):
+    ''' 
+        Copies all elements of a set s in to a new set,
+        except for the element c (and returns the new
+        set). For frozensets, use cpywo instead of
+        sremove.
+    '''
+    return set([x for x in s if x != c])
 
 def res_a(s):
     '''
@@ -83,18 +95,28 @@ def res_a(s):
         c2 = choice[2]
         c1_n = cpywo(c1, l) if l in c1 else cpywo(c1, nl)
         c2_n = cpywo(c2, l) if l in c2 else cpywo(c2, nl)
-        P = sreplace(sreplace(P, c1, c1_n), c2, c2_n)
+        cn = c1_n.union(c2_n)
+        if debug:
+            print("[res_a] Resolvent Clause : " + str(cn))        
+
+        # Add the resolvent clause in
+        P = sremove(P, c1) # Remove one of the current clauses
+        P = sreplace(P, c2, cn) # Replace the other clause with the resolvent clause
+
+        if debug:
+            print("[res_a] Resolved P : " + str(P))
 
     # If P is empty, return UNSAT
     if len(P) == 1 and P.pop() == frozenset():
         if debug:
-            print("[res_a] UNSAT")
+            print("[res_a] [] .: UNSAT")
+  
         return "UNSAT"
 
     # If PN == P (i.e. nothing has changed) return SAT      
     if P == s:
         if debug:
-            print("[res_a] SAT")
+            print("[res_a] PN == P, .: SAT")
         return "SAT"
 
     # Call the thing again
