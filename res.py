@@ -110,6 +110,7 @@ def res_a(s):
     if len(P) == 1 and P.pop() == frozenset():
         if debug:
             print("[res_a] [] .: UNSAT")
+  
         return "UNSAT"
 
     # If PN == P (i.e. nothing has changed) return SAT      
