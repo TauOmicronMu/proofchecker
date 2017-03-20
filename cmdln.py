@@ -8,7 +8,7 @@ args = sys.argv
 
 def satcheck():
     if len(args) != 2:
-        print("Wrong arg length! Usage: python3 satcheck <expression>")
+        print("Wrong arg length! Usage: python3 cmdln <expression>")
         return
     res.res(args[1])
 
