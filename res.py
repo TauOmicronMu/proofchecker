@@ -80,13 +80,17 @@ def res_a(s):
         resolution rules to the set until SAT or UNSAT is 
         found.
     '''
+    if debug:
+        print("[res_a] Resolving : " + str(s))    
+
     P = s # Keep track of the original set 
 
     # Choose 2 clauses, C1, C2 that have not yet
     # been resolved and contain one complimentary
     # literal
     choice = choose(P)
-
+  
+    cn = frozenset()
     if choice != None:
         # Resolve P & update accordingly
         l = choice[0]
@@ -106,11 +110,13 @@ def res_a(s):
         if debug:
             print("[res_a] Resolved P : " + str(P))
 
-    # If P is empty, return UNSAT
-    if len(P) == 1 and P.pop() == frozenset():
+    if choice == None and debug:
+        print("[res_a] Resolvent Clause : " + str(cn))
+
+    # If the resolvent clause is [] (i.e. frozenset()), return UNSAT
+    if cn == frozenset():
         if debug:
             print("[res_a] [] .: UNSAT")
-  
         return "UNSAT"
 
     # If PN == P (i.e. nothing has changed) return SAT      
