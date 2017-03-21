@@ -125,7 +125,10 @@ def clause_nf(tree):
         | to give lists to convert to sets.
     '''
 
-    return rationalise(set([frozenset(x) for x in [l.split('|') for l in parser.noptostring(cnf_tree(tree)).split('&')]]))
+    cnf = rationalise(set([frozenset(x) for x in [l.split('|') for l in parser.noptostring(cnf_tree(tree)).split('&')]]))
+    if debug:
+        print("[clause_nf] Clause NF : " + str(cnf))
+    return cnf
 
 def rationalise(s):
     '''
