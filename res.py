@@ -9,8 +9,13 @@ def res(e):
         propositional resolution on the given logical
         expression, e.
     '''
-    return res_a(cnf.clause_nf(parser.parse(e)))
-    
+    sat = res_a(cnf.clause_nf(parser.parse(e)))
+    if(debug):
+        if(sat):
+            print("[res] ========================= SAT =========================")
+        else:
+            print("[res] ======================== UNSAT ========================")
+    return sat
      
 def choose(s):
     '''
@@ -81,7 +86,7 @@ def sremove(s, c):
 
 def res_a(s):
     '''
-        Auxiliary function for res(), recursively applies 
+        Auxiliary function for res(). Recursively applies 
         resolution rules to the set until SAT (true) or UNSAT (false) is 
         found.
     '''
@@ -96,6 +101,10 @@ def res_a(s):
 
 
 def resolve_choice(choice, s):
+    '''
+        Auxiliary function for res_a(). Works out if a given choice is
+        SAT (or any of it's future choices' branches are SAT etc.). 
+    '''
     if choice != None and len(choice) == 0: 
         return false
     if choice != None and len(choice) > 1 and isinstance(choice, set):
