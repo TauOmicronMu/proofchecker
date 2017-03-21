@@ -127,7 +127,7 @@ def clause_nf(tree):
 
     cnf = rationalise(set([frozenset(x) for x in [l.split('|') for l in parser.noptostring(cnf_tree(tree)).split('&')]]))
     if debug:
-        print("[clause_nf] Clause NF : " + str(cnf))
+        print("[clause_nf] Clause Normal Form : " + str(cnf))
     return cnf
 
 def rationalise(s):

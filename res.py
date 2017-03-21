@@ -9,16 +9,22 @@ def res(e):
         propositional resolution on the given logical
         expression, e.
     '''
-    return res_a(cnf.clause_nf(parser.parse(e)))
-    
+    sat = res_a(cnf.clause_nf(parser.parse(e)))
+    if(debug):
+        if(sat):
+            print("[res] ========================= SAT =========================")
+        else:
+            print("[res] ======================== UNSAT ========================")
+    return sat
      
 def choose(s):
     '''
-        Given a set of clauses, S, choose two clauses
+        Given a set of clauses, S, choose all pairs of two clauses
         such that one contains ¬L and the other contains
         L (with a complimentary literal) 
     '''
     ls = literals(s) 
+    ret_val = set()
     # For each literal, see if there are two clauses
     # that contain complimentary forms of it.
     if debug : 
@@ -33,10 +39,14 @@ def choose(s):
                 c_nl.add(c)
         if len(c_l) > 0 and len(c_nl) > 0:
             # We've found two clauses with a complimentary literal...
-            ret_val = (l, c_l.pop(), c_nl.pop()) 
+            val = (l, c_l.pop(), c_nl.pop()) 
             if debug:
-                print("[choose] Pair found : " + str(ret_val))
-            return ret_val
+                print("[choose] Pair found : " + str(val))
+            ret_val.add(val)
+    if len(ret_val) != 0:
+        if debug:
+            print("[choose] Final pairs found : " + str(ret_val)) 
+        return ret_val
     if debug:
         print("[choose] No pair found...")
     return None # No pairs found...  
@@ -76,20 +86,33 @@ def sremove(s, c):
 
 def res_a(s):
     '''
-        Auxiliary function for res(), recursively applies 
-        resolution rules to the set until SAT or UNSAT is 
+        Auxiliary function for res(). Recursively applies 
+        resolution rules to the set until SAT (true) or UNSAT (false) is 
         found.
     '''
     if debug:
         print("[res_a] Resolving : " + str(s))    
 
-    P = s # Keep track of the original set 
-
-    # Choose 2 clauses, C1, C2 that have not yet
-    # been resolved and contain one complimentary
-    # literal
-    choice = choose(P)
+    # Choose all pairs of clauses, C1, C2 that have not yet
+    # been resolved and contain one complimentary literal
+    choices = choose(s)
   
+    return resolve_choice(choices, s)
+
+
+def resolve_choice(choice, s):
+    '''
+        Auxiliary function for res_a(). Works out if a given choice is
+        SAT (or any of it's future choices' branches are SAT etc.). 
+    '''
+    if choice != None and len(choice) == 0: 
+        return false
+    if choice != None and len(choice) > 1 and isinstance(choice, set):
+        return resolve_choice(choice.pop(), s) or resolve_choice(choice, s)   
+    if choice != None and len(choice) == 1 and isinstance(choice, set):
+        choice = choice.pop()
+
+    P = s # Keep track of the original set
     cn = frozenset()
     if choice != None:
         # Resolve P & update accordingly
@@ -113,17 +136,17 @@ def res_a(s):
     if choice == None and debug:
         print("[res_a] Resolvent Clause : " + str(cn))
 
+    # If PN == P (i.e. nothing has changed) return SAT     
+    if P == s:
+        if debug:
+            print("[res_a] PN == P, .: SAT")
+        return True
+
     # If the resolvent clause is [] (i.e. frozenset()), return UNSAT
     if cn == frozenset():
         if debug:
             print("[res_a] [] .: UNSAT")
-        return "UNSAT"
-
-    # If PN == P (i.e. nothing has changed) return SAT      
-    if P == s:
-        if debug:
-            print("[res_a] PN == P, .: SAT")
-        return "SAT"
+        return False
 
     # Call the thing again
     res_a(P)  
