@@ -21,11 +21,19 @@ def DPLL(P):
     '''
     if consistent_literals(P):
         return True
-    if frozenset() in P:
+    if frozenset() in P: 
         return False
-    for p in P:            
-        pass        
+    for p in P: # Unit Propagation
+        if len(p) == 1:
+            P = propagate(p.pop(), P)
+    for p in P:
+        for l in p:
+            pass # TODO: if p is a pure literal, propagate it as a single interpretation across all clauses.
+    # TODO: Make a choice and return the branched result on that choice
     pass # TODO: Implement this :D 
+
+def consistent_literals(P):
+    return False # TODO: Make this do what it should do...
 
 def propagate(l, P):
     '''
