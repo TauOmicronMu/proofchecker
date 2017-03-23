@@ -8,4 +8,10 @@ if [ -z "$1" ]
         echo "Empty argument supplied"
 fi
 
-python3 cmdln.py "$1" > output.txt
+if [ -z "$2" ]
+    then
+       echo "Empty argument supplied"
+fi
+
+python3 cmdln.py "$1" "$2" > output.txt
+
