@@ -12,9 +12,9 @@ def res(e):
     sat = res_a(cnf.clause_nf(parser.parse(e)))
     if(debug):
         if(sat):
-            print("[res] ========================= SAT =========================")
+            print("========================= SAT =========================")
         else:
-            print("[res] ======================== UNSAT ========================")
+            print("======================== UNSAT ========================")
     return sat
      
 def choose(s):

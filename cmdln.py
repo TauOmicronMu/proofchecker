@@ -26,7 +26,7 @@ def satcheck():
         return dpll.DPLL(cnf.clause_nf(parser.parse(expr)))
     if flag == "cmp":
         start_time = get_time()
-        print("========================= MAIN LOOP =========================")
+        print("========================= RES =========================")
         res.res(expr)
         timestep = get_time() - start_time
         print("=============== TIME TAKEN : " + str(timestep) + " ===============")
