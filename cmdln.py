@@ -19,7 +19,7 @@ def satcheck():
     flag = args[1]
     expr = args[2]
     if flag == "cnf":
-        return cnf.clause_nf(expr)
+        return cnf.clause_nf(parser.parse(expr))
     if flag == "res": 
         return res.res(expr)
     if flag == "dpll":

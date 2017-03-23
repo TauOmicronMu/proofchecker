@@ -9,13 +9,7 @@ def res(e):
         propositional resolution on the given logical
         expression, e.
     '''
-    sat = res_a(cnf.clause_nf(parser.parse(e)))
-    if(debug):
-        if(sat):
-            print("========================= SAT =========================")
-        else:
-            print("======================== UNSAT ========================")
-    return sat
+    return res_a(cnf.clause_nf(parser.parse(e)))
      
 def choose(s):
     '''
@@ -140,6 +134,7 @@ def resolve_choice(choice, s):
     if P == s:
         if debug:
             print("[res_a] PN == P, .: SAT")
+            print("========================= SAT =========================")
         return True
 
     # If the resolvent clause is [] (i.e. frozenset()), return UNSAT
