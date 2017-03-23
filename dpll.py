@@ -3,6 +3,8 @@ import parser
 from cnf import * 
 from res import *
 
+debug = True
+
 def DPLL(P):
     '''
         Implementation of the standard DPLL procedure for SAT solving.
@@ -19,21 +21,21 @@ def DPLL(P):
             φ <- choose_literal(Φ)
             return DPLL(Φ ∩ φ) or DPLL(Φ ∩ ¬φ)
     '''
-    if consistent_literals(P):
+    if P == set() : # If P is an empty set - i.e. a set of consistent literals return SAT
         return True
-    if frozenset() in P: 
+    if frozenset() in P: # If P contains box (frozenset()) - return UNSAT
         return False
+    copyP = P
     for p in P: # Unit Propagation
         if len(p) == 1:
-            P = propagate(p.pop(), P)
-    for p in P:
-        for l in p:
-            pass # TODO: if p is a pure literal, propagate it as a single interpretation across all clauses.
+            if debug:
+                print("[DPLL] Unit Propagation : " + str(p))
+            copyP = propagate(next(iter(p)), copyP)
+    P = copyP
+    if debug:
+        print("[DPLL] Post-Unit Propagation : " + str(P))
     # TODO: Make a choice and return the branched result on that choice
     pass # TODO: Implement this :D 
-
-def consistent_literals(P):
-    return False # TODO: Make this do what it should do...
 
 def propagate(l, P):
     '''
