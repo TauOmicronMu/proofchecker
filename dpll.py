@@ -1,6 +1,8 @@
 import parser
 import cnf
 
+from res import *
+
 def DPLL(P):
     '''
         Implementation of the standard DPLL procedure for SAT solving.
@@ -17,4 +19,11 @@ def DPLL(P):
             φ <- choose_literal(Φ)
             return DPLL(Φ ∩ φ) or DPLL(Φ ∩ ¬φ)
     '''
+    if consistent_literals(P):
+        return True
+    if frozenset() in P:
+        return False
+    for p in P:
+            
+
     pass // TODO: Implement this :D 
