@@ -1,6 +1,6 @@
 import parser
-import cnf
 
+from cnf import * 
 from res import *
 
 def DPLL(P):
@@ -23,7 +23,22 @@ def DPLL(P):
         return True
     if frozenset() in P:
         return False
-    for p in P:
-            
+    for p in P:            
+        pass        
+    pass # TODO: Implement this :D 
 
-    pass // TODO: Implement this :D 
+def propagate(l, P):
+    '''
+        Propagate the interpretation, l = T through
+        the clauses in the set P. Return the new
+        set, with any simplifications etc.
+    '''
+    ret_val = set()
+    for c in P: 
+        if neg(l) in c:
+            ret_val.add(cpywo(c, neg(l))) # Remove this because it can never be true :) 
+        elif l not in c:
+            ret_val.add(l) # Only add the clause if it isn't now true!
+    return ret_val 
+        
+
