@@ -28,9 +28,12 @@ def DPLL(P):
     copyP = P
     for p in P: # Unit Propagation
         if len(p) == 1:
+            l = next(iter(p))
             if debug:
-                print("[DPLL] Unit Propagation : " + str(p))
-            copyP = propagate(next(iter(p)), copyP)
+                print("[DPLL] Unit Propagation of : " + str(l) + " on : " + str(copyP))
+            copyP = propagate(l, copyP)
+            if debug:
+                print("[DPLL] Result of Unit Propagation : " + str(copyP))
     P = copyP
     if debug:
         print("[DPLL] Post-Unit Propagation : " + str(P))
@@ -46,9 +49,17 @@ def propagate(l, P):
     ret_val = set()
     for c in P: 
         if neg(l) in c:
+            if debug:
+                print("[propagate] " + str(neg(l)) + " in " + str(c))
             ret_val.add(cpywo(c, neg(l))) # Remove this because it can never be true :) 
+            if debug:
+                print("[propagate] ret_val : " + str(ret_val))
         elif l not in c:
-            ret_val.add(l) # Only add the clause if it isn't now true!
+            if debug:
+                print("[propagate] " + str(l) + " not in " + str(c))
+            ret_val.add(c) # Only add the clause if it isn't now true!
+            if debug:
+                print("[propagate] ret_val : " + str(ret_val))
     return ret_val 
         
 
