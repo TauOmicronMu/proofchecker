@@ -17,7 +17,7 @@ def satcheck():
     if flag == "res": 
         return res.res(expr)
     if flag == "dpll":
-        pass
+        return dpll.DPLL(cnf.clause_nf(parser.parse(expr)))
     res.res(args[1])
 
 satcheck()
