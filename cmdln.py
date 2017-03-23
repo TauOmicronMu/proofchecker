@@ -3,8 +3,14 @@ import sys
 import parser
 import cnf
 import res
+import dpll
+
+import time
 
 args = sys.argv
+
+def get_time():
+    return time.time() * 1000
 
 def satcheck():
     if len(args) != 3:
@@ -18,6 +24,17 @@ def satcheck():
         return res.res(expr)
     if flag == "dpll":
         return dpll.DPLL(cnf.clause_nf(parser.parse(expr)))
-    res.res(args[1])
+    if flag == "cmp":
+        start_time = get_time()
+        print("========================= MAIN LOOP =========================")
+        res.res(expr)
+        timestep = get_time() - start_time
+        print("=============== TIME TAKEN : " + str(timestep) + " ===============")
+        start_time = get_time() 
+        print("========================= DPLL =========================")
+        dpll.DPLL(cnf.clause_nf(parser.parse(expr)))
+        timestep = get_time() - start_time
+        print("=============== TIME TAKEN : " + str(timestep) + " ===============")
+        return True
 
 satcheck()
